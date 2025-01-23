@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Atharv7901/E-CommerceAPIs/service/auth"
 	"github.com/Atharv7901/E-CommerceAPIs/types"
 	"github.com/Atharv7901/E-CommerceAPIs/utils"
 	"github.com/gorilla/mux"
@@ -39,11 +40,16 @@ func (h *Handler) handleSignup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// if doesen't exists create the user
+	hashedPassword, err := auth.HashPassword(payload.Password)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
 	err = h.store.CreateUser(types.User{
 		FirstName: payload.FirstName,
 		LastName:  payload.LastName,
 		Email:     payload.Email,
-		Password:  payload.Password,
+		Password:  hashedPassword,
 	})
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)

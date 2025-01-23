@@ -30,12 +30,12 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleSignup(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
 	var payload types.RegisterUserPayload
-	if err := utils.ParseJSON(r, payload); err != nil {
+	if err := utils.ParseJSON(r, &payload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 	}
 	//check if the user exists
 	_, err := h.store.GetUserByEmail(payload.Email)
-	if err != nil {
+	if err == nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", payload.Email))
 		return
 	}

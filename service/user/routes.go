@@ -7,6 +7,7 @@ import (
 	"github.com/Atharv7901/E-CommerceAPIs/service/auth"
 	"github.com/Atharv7901/E-CommerceAPIs/types"
 	"github.com/Atharv7901/E-CommerceAPIs/utils"
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 )
 
@@ -32,6 +33,12 @@ func (h *Handler) handleSignup(w http.ResponseWriter, r *http.Request) {
 	var payload types.RegisterUserPayload
 	if err := utils.ParseJSON(r, &payload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
+	}
+	//validate the payload
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
 	}
 	//check if the user exists
 	_, err := h.store.GetUserByEmail(payload.Email)
